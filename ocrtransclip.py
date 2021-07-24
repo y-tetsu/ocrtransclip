@@ -15,7 +15,7 @@ class OcrTool:
 
     def _add_tesseract_path(self, tool_path):
         path = pathlib.Path(tool_path)
-        os.environ['PATH'] = os.environ['PATH'] + ';' + str(path)
+        os.environ['PATH'] += ';' + str(path)
         return path
 
     def _select_tesseract_for_ocr_tool(self):
