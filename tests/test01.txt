@@ -1,0 +1,10 @@
+Home
+
+stefan Weiledited this page 26 days agoÅE70 revisions
+
+Tesseract at UB Mannheim
+
+The Mannheim University Librar (UB Mannheim) uses Tesseract to perform OCR (optical character recognition) of historical
+German newspapers (Allgemeine PreuBische Staatszeituno, Deutscher Reichsanzeige. The latest results with OCR from more
+
+than 360,000 scans are available online.
