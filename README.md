@@ -1,0 +1,2 @@
+# ocrtransclip
+OCRツール
