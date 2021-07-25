@@ -6,6 +6,7 @@ import pathlib
 from PIL import Image
 import pyocr
 import googletrans
+import pyperclip
 
 
 class OcrTool:
@@ -40,6 +41,7 @@ class Translator:
         detect = self.translator.detect(text)
         src, dest = ('ja', 'en') if detect.lang == 'ja' else ('en', 'ja')
         translated = self.translator.translate(text, src=src, dest=dest).text
+        pyperclip.copy(translated)
         return translated
 
 
