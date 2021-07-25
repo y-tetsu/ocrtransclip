@@ -2,8 +2,10 @@
 """
 import os
 import pathlib
+
 from PIL import Image
 import pyocr
+import googletrans
 
 
 class OcrTool:
@@ -30,12 +32,24 @@ class OcrTool:
         return self.tool.image_to_string(img, lang=self.lang, builder=self.builder)
 
 
+class Translator:
+    def __init__(self):
+        self.translator = googletrans.Translator()
+
+    def run(self, text):
+        detect = self.translator.detect(text)
+        src, dest = ('ja', 'en') if detect.lang == 'ja' else ('en', 'ja')
+        translated = self.translator.translate(text, src=src, dest=dest).text
+        return translated
+
+
 if __name__ == '__main__':
     ocrtool = OcrTool('C:\\Program Files\\Tesseract-OCR')
+    translator = Translator()
 
     # test01
     path = pathlib.Path('.\\tests\\test01.png')
-    output = ocrtool.image_to_string(str(path))
+    ocr_text = ocrtool.image_to_string(str(path))
     expected = """Home
 
 stefan Weiledited this page 26 days ago・70 revisions
@@ -46,5 +60,19 @@ The Mannheim University Librar (UB Mannheim) uses Tesseract to perform OCR (opti
 German newspapers (Allgemeine PreuBische Staatszeituno, Deutscher Reichsanzeige. The latest results with OCR from more
 
 than 360,000 scans are available online."""
-    print(output)
-    assert output == expected, '*** Error : output is not match. ***\n(expected)\n---\n' + expected + '\n---\n'
+    print(ocr_text)
+    assert ocr_text == expected, '*** Error : ocr_text is not match. ***\n(expected)\n---\n' + expected + '\n---\n'
+
+    trans_text = translator.run(ocr_text)
+    expected = """家
+
+Stefan weilileedこのページ26日前・70リビジョン
+
+UBマンハイムのテッセサクト
+
+マンハイム大学図書館（UB Manheim）はTesseractを使用して歴史のOCR（光学式文字認識）を実行します
+ドイツの新聞（Allgemeine Preubische Staatszeituno、Deutscher Reichsanzeige。OCRでの最新の結果が多い
+
+360,000スキャンがオンラインで利用可能です。"""
+    print(trans_text)
+    assert trans_text == expected, '*** Error : trans_text is not match. ***\n(expected)\n---\n' + expected + '\n---\n'
