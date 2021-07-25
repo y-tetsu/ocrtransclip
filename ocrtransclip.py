@@ -2,6 +2,7 @@
 """
 import os
 import pathlib
+import re
 
 from PIL import Image
 import pyocr
@@ -37,9 +38,22 @@ class Translator:
     def __init__(self):
         self.translator = googletrans.Translator()
 
+    def _pre_format(self, text, src, dest):
+        if src == 'en':
+            # format sentence
+            text = re.sub(r'\n(\w)', r' \1', text)
+            text = re.sub(r'(\.[^\.]+)\n', r'\1', text)
+            # format period
+            text = re.sub(r'\.', r'.\n', text)
+            # remove space
+            text = re.sub(r'\n\s+', r'\n', text)
+            text = re.sub(r'\s+\n', r'\n', text)
+        return text
+
     def run(self, text):
         detect = self.translator.detect(text)
         src, dest = ('ja', 'en') if detect.lang == 'ja' else ('en', 'ja')
+        text = self._pre_format(text, src, dest)
         translated = self.translator.translate(text, src=src, dest=dest).text
         pyperclip.copy(translated)
         return translated
@@ -51,6 +65,8 @@ if __name__ == '__main__':
 
     # test01
     path = pathlib.Path('.\\tests\\test01.png')
+
+    # OCR
     ocr_text = ocrtool.image_to_string(str(path))
     expected = """Home
 
@@ -65,16 +81,12 @@ than 360,000 scans are available online."""
     print(ocr_text)
     assert ocr_text == expected, '*** Error : ocr_text is not match. ***\n(expected)\n---\n' + expected + '\n---\n'
 
+    # translation
     trans_text = translator.run(ocr_text)
     expected = """家
-
 Stefan weilileedこのページ26日前・70リビジョン
-
 UBマンハイムのテッセサクト
-
-マンハイム大学図書館（UB Manheim）はTesseractを使用して歴史のOCR（光学式文字認識）を実行します
-ドイツの新聞（Allgemeine Preubische Staatszeituno、Deutscher Reichsanzeige。OCRでの最新の結果が多い
-
-360,000スキャンがオンラインで利用可能です。"""
+Mannheim University Librar（UB Manheim）はTesseractを使用して歴史的なドイツの新聞のOCR（Optical Character認識）を実行します（Allgemeine Preubische Staatszeituno、Deutscher Reichsanzeige。
+360,000以上のスキャンからOCRを持つ最新の結果がオンラインで入手可能です。"""
     print(trans_text)
     assert trans_text == expected, '*** Error : trans_text is not match. ***\n(expected)\n---\n' + expected + '\n---\n'
